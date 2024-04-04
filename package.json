@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/R3DAu/yetanothertwitchbot/issues"
   },
-  "homepage": "https://github.com/R3DAu/yetanothertwitchbot#readme"
+  "homepage": "https://github.com/R3DAu/yetanothertwitchbot#readme",
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
 }
