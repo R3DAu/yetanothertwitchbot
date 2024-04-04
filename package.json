@@ -1,0 +1,19 @@
+{
+  "name": "yetanothertwitchbot",
+  "version": "1.0.0",
+  "description": "Yet Another Twitch Bot",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/R3DAu/yetanothertwitchbot.git"
+  },
+  "author": "Mitch Reynolds (R3DAu)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/R3DAu/yetanothertwitchbot/issues"
+  },
+  "homepage": "https://github.com/R3DAu/yetanothertwitchbot#readme"
+}
