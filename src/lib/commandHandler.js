@@ -8,21 +8,20 @@ async function getAllFiles(dir) {
         const isDirectory = fs.statSync(name).isDirectory();
         if(isDirectory || file.endsWith('.js'))
             return isDirectory ? [...files, ...getAllFiles(name)] : [...files, name];
-
     }, []);
-}
+} 
 
 async function loadCommands(dir) {
     return new Promise(async (resolve, reject) => {
         try{
             for (const file of await getAllFiles(dir)) {
                 const command = require(file);
-                if ('name' in command && 'execute' in command) {
+                if ('name' in command && 'execute' in command && 'isModOnly' in command) {
                     commands.push(command);
                     console.log(`[INFO] Loaded command ${command.name}`);
                 } else {
                     console.error(`[WARNING] The command at ${file} is missing a required "name" or "execute" property.`);
-                   reject(`The command at ${file} is missing a required "name" or "execute" property.`);
+                   reject(`The command at ${file} is missing a required "name", "isModOnly" or "execute" property.`);
                 }
             }
             resolve(commands);
