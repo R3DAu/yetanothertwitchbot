@@ -35,5 +35,5 @@ jobs:
       - name: Build the Docker Image
         run: |
           docker build . --tag ${{env.REGISTRY}}/r3dau/yetanothertwitchbot:latest
-          docker run ${{env.REGISTRY}}/r3dau/yetanothertwitchbot:latest
+          docker run ${{env.REGISTRY}}/r3dau/yetanothertwitchbot:latest -e "test_build=true"
           docker push ${{env.REGISTRY}}/r3dau/yetanothertwitchbot:latest

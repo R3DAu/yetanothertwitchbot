@@ -15,42 +15,46 @@ const Gamble = require("./src/lib/database/models/gamble");
 
 let isShuttingDown = false;
 
-
-Messages.sync({alter: false}).then(() => {
-    console.log('Messages table created');
-}).catch((e) => {
-    console.error(e);
-});
-
-Settings.sync({alter: false}).then(() => {
-    console.log('Settings table created');
-}).catch((e) => {
-    console.error(e);
-});
-
-Users.sync({alter: false}).then(() => {
-    console.log('Users table created');
-}).catch((e) => {
-    console.error(e);
-});
-
-Hastags.sync({alter: false}).then(() => {
-    console.log('Hastags table created');
-}).catch((e) => {
-    console.error(e);
-});
-
-Gamble.sync({alter: false}).then(() => {
-    console.log('Gamble table created');
-}).catch((e) => {
-    console.error(e);
-});
+if(process.env.test_build === "true"){
+    console.log('This is a test build');
+    process.exit(0);
+}
 
 /* let's do the db connection first then we can start the app  */
 (async () => {
     try{
-        await connect().then(() => {
+        await connect().then(async () => {
             console.log('DB connection successful');
+
+            await Messages.sync({alter: false}).then(() => {
+                console.log('Messages table created');
+            }).catch((e) => {
+                console.error(e);
+            });
+
+            await Settings.sync({alter: false}).then(() => {
+                console.log('Settings table created');
+            }).catch((e) => {
+                console.error(e);
+            });
+
+            await Users.sync({alter: false}).then(() => {
+                console.log('Users table created');
+            }).catch((e) => {
+                console.error(e);
+            });
+
+            await Hastags.sync({alter: false}).then(() => {
+                console.log('Hastags table created');
+            }).catch((e) => {
+                console.error(e);
+            });
+
+            await Gamble.sync({alter: false}).then(() => {
+                console.log('Gamble table created');
+            }).catch((e) => {
+                console.error(e);
+            });
         });
     }catch(e){
         console.error(e);
