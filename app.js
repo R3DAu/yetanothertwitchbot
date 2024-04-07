@@ -8,7 +8,43 @@ const express = require('express');
 const { Sequelize, sequelize, connect } = require('./src/lib/database/db');
 const { Op } = require('sequelize');
 const Settings = require("./src/lib/database/models/settings");
+const Messages = require("./src/lib/database/models/messages");
+const Users = require("./src/lib/database/models/user");
+const Hastags = require("./src/lib/database/models/hashtags");
+const Gamble = require("./src/lib/database/models/gamble");
+
 let isShuttingDown = false;
+
+
+Messages.sync({alter: false}).then(() => {
+    console.log('Messages table created');
+}).catch((e) => {
+    console.error(e);
+});
+
+Settings.sync({alter: false}).then(() => {
+    console.log('Settings table created');
+}).catch((e) => {
+    console.error(e);
+});
+
+Users.sync({alter: false}).then(() => {
+    console.log('Users table created');
+}).catch((e) => {
+    console.error(e);
+});
+
+Hastags.sync({alter: false}).then(() => {
+    console.log('Hastags table created');
+}).catch((e) => {
+    console.error(e);
+});
+
+Gamble.sync({alter: false}).then(() => {
+    console.log('Gamble table created');
+}).catch((e) => {
+    console.error(e);
+});
 
 /* let's do the db connection first then we can start the app  */
 (async () => {
@@ -23,7 +59,21 @@ let isShuttingDown = false;
     }
 
     if (cluster.isMaster) {
-        const twitchChannels = process.env.TMI_CHANNELS.split(',');
+        let twitchChannels = [];
+
+        //let's get the channels from the DB... we will use this to fork the workers
+        const Users = require('./src/lib/database/models/user');
+        const users = await Users.findAll({raw: true});
+
+        if(users.length === 0){
+            console.error('No channels found in the DB');
+            //use these channels from the env
+            twitchChannels = process.env.TMI_CHANNELS.split(',');
+        }else{
+            //lets build the array from the login field
+            twitchChannels = users.map((user) => user.login);
+        }
+
         console.log(`Master ${process.pid} is running`);
 
         const workers = [];
@@ -98,8 +148,7 @@ let isShuttingDown = false;
         const passport = require('passport');
         const TwitchStrategy = require('passport-twitch-new').Strategy;
         const session = require('express-session');
-        const User  = require('./src/lib/database/models/user');
-        const Settings  = require('./src/lib/database/models/settings');
+
 
         //set user command cooldown
         const userCooldown = new Map();
@@ -176,6 +225,17 @@ let isShuttingDown = false;
             const ignoredChannels = process.env.TMI_IGNORE_USERS.split(',') || [];
             if(ignoredChannels.includes(channel)){
                 return;
+            }
+
+
+            //this is where we can track messages for channel summaries later.
+            //Insert the message into the database, ignoring commands
+            if(!message.startsWith(prefix)){
+                await Messages.create({
+                    channel: channel.slice(1),
+                    username: tags.username,
+                    Message: message
+                });
             }
 
             //let's check for the prefix next.
