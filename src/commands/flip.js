@@ -1,4 +1,4 @@
-const Gamble = require('../lib/database/models/Gamble');
+const Gamble = require('../lib/database/models/gamble');
 
 module.exports = {
     name: "flip",
