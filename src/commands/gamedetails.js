@@ -21,8 +21,6 @@ module.exports = {
             return;
         }
 
-
-        console.log(gameInfo);
         client.say(channel, `@${tags.username}, ${channel.slice(1)} is playing ${gameInfo.name}. ${gameInfo.igdb.summary}`);
     }
 }

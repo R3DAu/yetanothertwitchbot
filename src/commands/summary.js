@@ -79,7 +79,7 @@ module.exports = {
             temperature: 0.5,
         }).then((response) => {
             //let's give the usage into a console.
-            console.log(`[INFO] Chat summary generated for ${channel.slice(1)}, Tokens used: ${response.total_tokens}, Tokens left: ${response.tokens_left}, Chat summary: ${response.choices[0].message.content}`);
+            console.log(response);
             client.say(channel, `@${tags.username}, ${response.choices[0].message.content}`);
         })
         .catch(e => {
