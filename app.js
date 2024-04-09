@@ -230,19 +230,19 @@ if(process.env.test_build === "true"){
 
             // Ignore messages from other channels
             const ignoredChannels = process.env.TMI_IGNORE_USERS.split(',') || [];
-            if(ignoredChannels.includes(channel)){
+            if(ignoredChannels.includes(tags.username.toLowerCase())){
                 return;
             }
-
 
             //this is where we can track messages for channel summaries later.
             //Insert the message into the database, ignoring commands
             if(!message.startsWith(prefix)){
-                await Messages.create({
-                    channel: channel.slice(1),
-                    username: tags.username,
-                    Message: message
-                });
+                if(message.length > 0)
+                    await Messages.create({
+                        channel: channel.slice(1),
+                        username: tags.username,
+                        Message: message.toString().replace(/[^\x00-\x7F]/g, "")
+                    }).catch((e) => {console.error(e)});
             }
 
             //let's check for the prefix next.
