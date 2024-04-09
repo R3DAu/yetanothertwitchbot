@@ -59,14 +59,6 @@ function calculateScore(hand) {
     return score;
 }
 
-function playerAction(deck, playerHand) {
-    // This is where you'd implement player decisions (e.g., "hit" or "stand")
-    // For simplicity, let's automatically "hit" if score is below 17 and "stand" otherwise
-    while (calculateScore(playerHand) < 17) {
-        playerHand.push(dealCard(deck));
-    }
-}
-
 function dealerAction(deck, dealerHand) {
     // Dealer rules can vary, but a common rule is to hit until reaching a score of 17 or more
     while (calculateScore(dealerHand) < 17) {
@@ -89,25 +81,10 @@ function determineWinner(playerHand, dealerHand) {
     }
 }
 
-function playBlackjack(client, channel){
-    const deck = createDeck();
-    const playerHand = dealInitialCards(deck);
-    const dealerHand = dealInitialCards(deck);
-
-    playerAction(deck, playerHand);
-    dealerAction(deck, dealerHand);
-
-    client.say(channel, `Player's hand: ${playerHand.map(card => `${card.rank} of ${card.suit}`).join(', ')} Score: ${calculateScore(playerHand)}`);
-    client.say(channel, `Dealer's hand: ${dealerHand.map(card => `${card.rank} of ${card.suit}`).join(', ')} Score: ${calculateScore(dealerHand)}`);
-
-    return determineWinner(playerHand, dealerHand);
-}
-
-
 // Function to start a new game
-async function startBlackjackGame(client, channel, username, betAmount) {
+async function startBlackjackGame(client, channel, tags, betAmount) {
     if (games[channel]) {
-        client.say(channel, `@${username}, a game is already in progress.`);
+        client.say(channel, `@${tags.username}, a game is already in progress.`);
         return;
     }
 
@@ -116,7 +93,7 @@ async function startBlackjackGame(client, channel, username, betAmount) {
     const dealerHand = dealInitialCards(deck);
 
     games[channel] = {
-        username,
+        username: tags.username,
         deck,
         playerHand,
         dealerHand,
@@ -125,7 +102,7 @@ async function startBlackjackGame(client, channel, username, betAmount) {
     };
 
     displayHand(client, channel, 'Your', playerHand);
-    client.say(channel, `@${username}, use the commands hit to take another card or stand to hold.`);
+    client.say(channel, `@${tags.username}, use the commands hit to take another card or stand to hold.`);
 }
 
 // Function to display a hand
@@ -136,7 +113,7 @@ function displayHand(client, channel, owner, hand) {
 }
 
 // Handle commands for hitting or standing
-async function handlePlayerDecision(client, channel, command) {
+async function handlePlayerDecision(client, channel, command, tags) {
     const game = games[channel];
     if (!game || game.status !== 'waitingForPlayer') return;
 
@@ -146,16 +123,16 @@ async function handlePlayerDecision(client, channel, command) {
         displayHand(client, channel, 'Your', game.playerHand);
 
         if (score >= 21) {
-            concludeGame(client, channel);
+            concludeGame(client, channel, tags.username, game.betAmount);
         }
     } else if (command === 'stand') {
         game.status = 'dealerTurn';
-        concludeGame(client, channel);
+        concludeGame(client, channel, tags.username, game.betAmount);
     }
 }
 
 // Conclude the game
-async function concludeGame(client, channel) {
+async function concludeGame(client, channel, username, amount) {
     const game = games[channel];
     if (!game) return;
 
@@ -172,7 +149,7 @@ async function concludeGame(client, channel) {
     const balance = await Gamble.findOrCreate({
         where: {
             channel: channel.slice(1),
-            user: tags.username
+            user: username
         },
         defaults: {
             amount: 100
@@ -187,16 +164,16 @@ async function concludeGame(client, channel) {
         }, {
             where: {
                 channel: channel.slice(1),
-                user: tags.username
+                user: username
             }
         });
 
-        client.say(channel, `@${tags.username}, Congratulations! You won ${amount * 2}!`);
+        client.say(channel, `@${username}, Congratulations! You won ${amount * 2}!`);
     }
 
     if (result === 'Dealer') {
         // Dealer wins
-        client.say(channel, `@${tags.username}, Dealer wins!`);
+        client.say(channel, `@${username}, Dealer wins!`);
     }
 
     if (result === 'Push') {
@@ -206,11 +183,11 @@ async function concludeGame(client, channel) {
         }, {
             where: {
                 channel: channel.slice(1),
-                user: tags.username
+                user: username
             }
         });
 
-        client.say(channel, `@${tags.username}, It's a tie! You get your bet amount back.`);
+        client.say(channel, `@${username}, It's a tie! You get your bet amount back.`);
     }
 
     games[channel] = null; // Or delete games[channel];
@@ -229,7 +206,7 @@ module.exports = {
         switch(command){
             case 'hit':
             case 'stand':
-                await handlePlayerDecision(client, channel, command);
+                await handlePlayerDecision(client, channel, command, tags);
                 return;
             default:
                 if (args.length < 1) {
@@ -272,7 +249,7 @@ module.exports = {
                 });
 
                 //setup the game here:
-                await startBlackjackGame(client, channel, tags.username, amount);
+                await startBlackjackGame(client, channel, tags, amount);
         }
     }
 }
