@@ -9,7 +9,8 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, proces
     dialectOptions: {
         connectTimeout: process.env.DB_CONNECTION_TIMEOUT || 1000,
         connectionLimit: process.env.DB_CONNECTION_LIMIT || 10,
-    }
+    },
+    logging: process.env.APP_ENV === 'production' ? false : console.log
 });
 
 /** try the connection */
