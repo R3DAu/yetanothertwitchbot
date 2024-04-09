@@ -165,7 +165,10 @@ if(process.env.test_build === "true"){
 
         //new client
         const client = new tmi.Client({
-            options: { debug: process.env.TMI_DEBUG },
+            options: {
+                debug: process.env.TMI_DEBUG === 'true',
+                messageLogLevel: process.env.TMI_DEBUG === 'true' ? 'info' : 'error'
+            },
             identity: {
                 username: process.env.TMI_USER,
                 password: process.env.TMI_PASS
