@@ -160,3 +160,5 @@ Network Trash Folder
 Temporary Items
 .apdisk
 /src/lib/database/config/config.json
+/sessions/*
+sessions/*

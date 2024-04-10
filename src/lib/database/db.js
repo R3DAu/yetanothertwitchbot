@@ -1,5 +1,22 @@
 require('dotenv').config();
 const { Sequelize } = require('sequelize');
+const log = require('../logger');
+
+const customLogger = (msg, query, options) => {
+    //log the message
+
+    if(!options){
+        log.debug(msg, {service: 'DB'});
+        return;
+    }else{
+        if(options.type === 'ERROR'){
+            log.error(msg, {service: 'DB'});
+            return;
+        }
+        log.info(msg, {service: 'DB'})
+    }
+};
+
 
 const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASS, {
     host: process.env.DB_HOST,
@@ -14,7 +31,7 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, proces
         connectTimeout: process.env.DB_CONNECTION_TIMEOUT || 1000,
         connectionLimit: process.env.DB_CONNECTION_LIMIT || 10,
     },
-    logging: process.env.APP_ENV === 'production' ? false : console.log
+    logging: process.env.APP_ENV === 'production' ? false : customLogger
 });
 
 /** try the connection */

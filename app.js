@@ -1,5 +1,7 @@
+const startTime = Date.now(); //keep track of running time...
 require('dotenv').config();
 const os= require("os");
+const log = require('./src/lib/logger');
 const cluster = require('cluster');
 const path = require('path');
 const tmi = require('tmi.js');
@@ -16,7 +18,7 @@ const Gamble = require("./src/lib/database/models/gamble");
 let isShuttingDown = false;
 
 if(process.env.test_build === "true"){
-    console.log('This is a test build');
+    log.debug('This is a test build', {service: "Main", pid: process.pid});
     process.exit(0);
 }
 
@@ -24,45 +26,46 @@ if(process.env.test_build === "true"){
 (async () => {
     try{
         await connect().then(async () => {
-            console.log('DB connection successful');
+            log.info('Database connected successfully', {service: "DB", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"});
 
             await Messages.sync({alter: false}).then(() => {
-                console.log('Messages table created');
+                log.info('Messages Table Synchronised Successfully', {service: "DB", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"});
             }).catch((e) => {
-                console.error(e);
+                log.error(e, {service: "DB", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"});
             });
 
             await Settings.sync({alter: false}).then(() => {
-                console.log('Settings table created');
+                log.info('Settings Table Synchronised Successfully', {service: "DB", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"});
             }).catch((e) => {
-                console.error(e);
+                log.error(e, {service: "DB", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"});
             });
 
             await Users.sync({alter: false}).then(() => {
-                console.log('Users table created');
+                log.info('Users Table Synchronised Successfully', {service: "DB", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"});
             }).catch((e) => {
-                console.error(e);
+                log.error(e, {service: "DB", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"});
             });
 
             await Hastags.sync({alter: false}).then(() => {
-                console.log('Hastags table created');
+                log.info('Hashtags Table Synchronised Successfully', {service: "DB", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"});
             }).catch((e) => {
-                console.error(e);
+                log.error(e, {service: "DB", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"});
             });
 
             await Gamble.sync({alter: false}).then(() => {
-                console.log('Gamble table created');
+                log.info('Gamble Table Synchronised Successfully', {service: "DB", pid: process.pid});
             }).catch((e) => {
-                console.error(e);
+                log.error(e, {service: "DB", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"});
             });
         });
     }catch(e){
-        console.error(e);
+        log.error(e, {service: "DB", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"});
         /* exit the process */
         process.exit(1);
     }
 
     if (cluster.isMaster) {
+        log.info(`Master ${process.pid} is running`, {service: "Cluster", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"});
         let twitchChannels = [];
 
         //let's get the channels from the DB... we will use this to fork the workers
@@ -70,15 +73,13 @@ if(process.env.test_build === "true"){
         const users = await Users.findAll({raw: true});
 
         if(users.length === 0){
-            console.error('No channels found in the DB');
+            log.warn(`No channels found in the DB`, {service: "Twitch Manager", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"});
             //use these channels from the env
             twitchChannels = process.env.TMI_CHANNELS.split(',');
         }else{
             //lets build the array from the login field
             twitchChannels = users.map((user) => user.login);
         }
-
-        console.log(`Master ${process.pid} is running`);
 
         const workers = [];
         const restartCounts = {};
@@ -95,7 +96,8 @@ if(process.env.test_build === "true"){
         }
 
         cluster.on('exit', (worker, code, signal) => {
-            console.log(`worker ${worker.process.pid} died`);
+            log.warn(`worker ${worker.process.pid} died`, {service: "Cluster", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"});
+
             //get the channel index
             const channelIndex = workerToChannelIndexMap[worker.id]; // Retrieve channel index
 
@@ -103,20 +105,27 @@ if(process.env.test_build === "true"){
             if(isShuttingDown){
                 workers.splice(workers.indexOf(worker), 1);
                 if(workers.length === 0){
-                    console.log('All workers have been shutdown');
+                    log.warn(`All workers have been shutdown`, {service: "Cluster", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"});
                     process.exit(0);
                 }
                 return;
             }
 
-            restartCounts[channelIndex] += 1;
+            //only increment the counter if the exit code was > 0
+            if(code !== 450001){
+                restartCounts[channelIndex] += 1;
+                log.info(`Worker for channel index ${channelIndex} (${twitchChannels[channelIndex]}) has been restarted ${restartCounts[channelIndex]} times`, {service: "Cluster", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"});
+            }else{
+                log.info(`Worker for channel index ${channelIndex} (${twitchChannels[channelIndex]}) has exited with code ${code} however, it was necessary for a reboot due to change.`, {service: "Cluster", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"});
+            }
+
 
             if (restartCounts[channelIndex] > 3) {
-                console.log(`Worker for channel index ${channelIndex} (${twitchChannels[channelIndex]}) has hit the max restart count and will not be restarted`);
+                log.error(`Worker for channel index ${channelIndex} (${twitchChannels[channelIndex]}) has hit the max restart count and will not be restarted`, {service: "Cluster", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"});
 
                 workers.splice(workers.indexOf(worker), 1);
                 if(workers.length === 0){
-                    console.log('All workers have been shutdown, starting Main shutdown');
+                    log.warn(`All workers have been shutdown`, {service: "Cluster", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"});
                     gracefulShutdown();
                 }
 
@@ -124,21 +133,21 @@ if(process.env.test_build === "true"){
             }
 
             // Restart worker
-            console.log(`Restarting worker for channel index ${channelIndex}`);
+            log.warn(`Restarting worker for channel index ${channelIndex}`, {service: "Cluster", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"});
             const newWorker = cluster.fork({channel: twitchChannels[channelIndex]});
             workers[channelIndex] = newWorker;
             workerToChannelIndexMap[newWorker.id] = channelIndex; // Update mapping with new worker ID
         });
 
         async function gracefulShutdown(){
-            console.log(`Main received Signal to Quit`);
+            log.info(`Main received Signal to Quit`, {service: "Cluster", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"});
             isShuttingDown = true;
 
             //close out of the db connection
-            await sequelize.close().then(() => console.log('DB connection closed on main'));
+            await sequelize.close().then(() => log.info('DB connection closed', {service: "DB", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"})).catch((e) => log.error(e, {service: "DB", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"}));
 
             setTimeout(() => {
-                console.error('Completing shutdown after 10 seconds');
+                log.info('Completing shutdown after 10 seconds', {service: "Cluster", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"});
                 process.exit(0);
             }, 10000);
         }
@@ -146,27 +155,28 @@ if(process.env.test_build === "true"){
         process.on('SIGINT', gracefulShutdown);
         process.on('SIGTERM', gracefulShutdown);
     }else{
+        const channel = process.env.channel;
+        log.info(`Worker ${process.pid} started for channel ${channel}`, {service: "Cluster", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"});
+
         //for each channel, we will have a webserver
         const app = express();
 
         const passport = require('passport');
         const TwitchStrategy = require('passport-twitch-new').Strategy;
-        const session = require('express-session');
-
+        const expressSession = require('express-session');
+        const FileStore = require('session-file-store')(expressSession);
+        const cookieParser = require('cookie-parser');
 
         //set user command cooldown
         const userCooldown = new Map();
 
-        const channel = process.env.channel;
-        console.log(`Worker ${process.pid} started for channel ${channel}`);
-
         //load the commands
-        await loadCommands(path.join(__dirname, '/src/commands')).catch((e) => console.error(e));
+        await loadCommands(path.join(__dirname, '/src/commands')).catch((e) => log.error(e,{service: "Command Handler", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"}));
 
         //new client
         const client = new tmi.Client({
             options: {
-                debug: process.env.TMI_DEBUG === 'true',
+                debug: process.env.TMI_DEBUG === 'true' ? true : false,
                 messageLogLevel: process.env.TMI_DEBUG === 'true' ? 'info' : 'error'
             },
             identity: {
@@ -216,15 +226,27 @@ if(process.env.test_build === "true"){
 
         //now let's just go down the list...
         prefix = prefix ? prefix.value : global_prefix ? global_prefix.value : process.env.TMI_COMMAND_PREFIX || '!';
-
-        //connect the client
-        await client.connect();
+        log.debug(`Prefix for channel ${channel} is ${prefix}`, {service: "Twitch Manager", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"});
 
         client.on('connected', (addr, port) => {
-            console.log(`* Connected to ${addr}:${port}`);
+            log.info(`Connected to ${addr}:${port}`, {service: "Twitch Manager", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"});
+        });
+
+        client.on('connecting', (addr, port) => {
+            log.info(`Connecting to ${addr}:${port}`, {service: "Twitch Manager", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"});
+        });
+
+        client.on('disconnected', (reason) => {
+            log.warning(`Disconnected: ${reason}`, {service: "Twitch Manager", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"});
+        });
+
+        client.on('logon', () => {
+            log.info(`Logged in, Ready to rock`, {service: "Twitch Manager", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"});
         });
 
         client.on('message', async (channel, tags, message, self) => {
+            const isOwner = tags.username.toLowerCase() === channel.slice(1).toLowerCase();
+
             // Ignore echoed messages.
             if(self) return;
 
@@ -242,7 +264,7 @@ if(process.env.test_build === "true"){
                         channel: channel.slice(1),
                         username: tags.username,
                         Message: message.toString().replace(/[^\x00-\x7F]/g, "")
-                    }).catch((e) => {console.error(e)});
+                    }).catch((e) => {log.error(e, {service: "Twitch Manager", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"})});
             }
 
             //let's check for the prefix next.
@@ -261,9 +283,32 @@ if(process.env.test_build === "true"){
             const args = message.slice(prefix.length).split(' ');
             const command = args.shift().toLowerCase();
 
+            //let's check if the channel has disabled this command...
+            const disabledCommands = await Settings.findOrCreate({
+                where:{
+                    channeluserid: channel.slice(1),
+                    key: "disabledCommands"
+                },
+                defaults: {
+                    options: JSON.stringify([]),
+                    type: "CHANNEL"
+                },
+                raw: true,
+                limit: 1
+            }).catch((e) => {log.error(e, {service: "Twitch Manager", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"})});
+
+            const disabled = JSON.parse(disabledCommands[0].options);
+
+            log.info(`Channel ${channel} has a total of ${disabled.length} disabled commands`, {service: "Twitch Manager", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"});
+
+            if(!isOwner && disabled.includes(command)){
+                client.say(channel, `@${tags.username}, Command: ${command} has been disabled.`);
+                return;
+            }
+
             //check if we have that command.
             if(hasCommand(command)) {
-                console.log(tags.username + ' used command ' + command);
+                log.info(`Command ${command} received from ${tags.username}`, {service: "Twitch Manager", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"});
                 //let's make sure this isn't a mod only command or is the owner of the channel.
                 if(getCommand(command).isModOnly && !tags.mod && (tags.username !== process.env.channel)){
                     return;
@@ -272,6 +317,10 @@ if(process.env.test_build === "true"){
                 getCommand(command).execute(channel, tags, args, self, client);
             }
         });
+
+        //connect the client
+        await client.connect()
+            .catch(e => { log.error(e, {service: "Twitch Manager", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"}) });
 
         let permissions = process.env.TMI_API_SCOPES.split(" ") || "";
         permissions = JSON.stringify(permissions.toString());
@@ -284,7 +333,7 @@ if(process.env.test_build === "true"){
             scope: process.env.TMI_TWITCH_SCOPES
         }, async (accessToken, refreshToken, profile, done) => {
 
-            const [user, created] = await User.findOrCreate({where: {
+            const [user, created] = await Users.findOrCreate({where: {
                 twitchId: profile.id,
                 },
                 defaults: {
@@ -294,7 +343,7 @@ if(process.env.test_build === "true"){
                     login: profile.login
                 }
             }).catch((e) => {
-                console.error(e);
+                log.error(e, {service: "Web Server", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"});
                 return done(e, null);
             });
 
@@ -302,7 +351,15 @@ if(process.env.test_build === "true"){
         }));
 
         // Express and Passport Session
-        app.use(session({ secret: 'keyboard cat', resave: false, saveUninitialized: false }));
+        app.use(cookieParser());
+        app.use(expressSession(
+            {
+                secret: process.env.COOKIE_SECRET,
+                resave: false,
+                saveUninitialized: true,
+                store: new FileStore({}),
+            }
+        ));
         app.use(passport.initialize());
         app.use(passport.session());
 
@@ -312,7 +369,7 @@ if(process.env.test_build === "true"){
         // Serialize and deserialize user instances to and from the session.
         passport.serializeUser(function(user, done) { done(null, user.id); });
         passport.deserializeUser(function(id, done) {
-            User.findOne({ where: { id: id } }).then(user => {
+            Users.findOne({ where: { id: id } }).then(user => {
                 done(null, user);
             });
         });
@@ -337,26 +394,26 @@ if(process.env.test_build === "true"){
         const port = process.env.APP_PORT || 3000;
 
         const server = app.listen(port, () => {
-            console.log(`Worker ${process.pid} listening at http://localhost:${port}`);
+            log.info(`Worker ${process.pid} listening at http://localhost:${port}`, {service: "Web Server", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"});
         });
 
         //make sure we handle the exit gracefully
         process.on('exit', (code) => {
-            console.log(`Worker ${process.pid} stopped with exit code ${code}`);
+            log.info(`Worker ${process.pid} stopped with exit code ${code}`, {service: "Main", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"});
         });
 
         async function gracefulShutdown(){
-            console.log(`Worker ${process.pid} received SIGINT`);
+            log.info(`Worker ${process.pid} received SIGINT`, {service: "Main", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"});
 
             //close the webserver
             server.close(() => {
-                console.log('Webserver shutdown on worker ' + process.pid);
+                log.info(`Webserver shutdown on worker ${process.pid}`, {service: "Web Server", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"});
 
                 //because this never resolves we need to check if the client is connected.
                 client.disconnect();
 
                 sequelize.close().then(() => {
-                    console.log('DB connection closed on worker ' + process.pid);
+                   log.info(`DB connection closed on worker ${process.pid}`, {service: "DB", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"});
                    process.exit(0);
                 });
             });
@@ -367,6 +424,6 @@ if(process.env.test_build === "true"){
     }
 })();
 
-
-
-
+module.exports = {
+    startTime
+}

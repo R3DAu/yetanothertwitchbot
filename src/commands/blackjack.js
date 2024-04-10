@@ -1,7 +1,4 @@
 const Gamble = require('../lib/database/models/gamble');
-// Basic game state
-let gamerunning = false;
-
 // Track games by channel or user to prevent collisions in multi-user environments
 let games = {};
 

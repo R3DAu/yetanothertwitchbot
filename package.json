@@ -16,12 +16,27 @@
     "url": "https://github.com/R3DAu/yetanothertwitchbot/issues"
   },
   "homepage": "https://github.com/R3DAu/yetanothertwitchbot#readme",
+  "nodemonConfig": {
+    "ignore": [
+      "logs/*",
+      "node_modules/*",
+      "src/data/*",
+      "sessions/*"
+    ],
+    "watch": [
+      "app.js",
+      ".env",
+      "src/*"
+    ]
+  },
   "devDependencies": {
     "nodemon": "^3.1.0"
   },
   "dependencies": {
     "axios": "^1.6.8",
     "bootstrap": "^5.3.3",
+    "cookie-parser": "^1.4.6",
+    "cookie-session": "^2.1.0",
     "dotenv": "^16.4.5",
     "ejs": "^3.1.9",
     "express": "^4.19.2",
@@ -32,6 +47,8 @@
     "passport": "^0.7.0",
     "passport-twitch-new": "^0.0.2",
     "sequelize": "^6.37.2",
-    "tmi.js": "^1.8.5"
+    "session-file-store": "^1.5.0",
+    "tmi.js": "^1.8.5",
+    "winston": "^3.13.0"
   }
 }

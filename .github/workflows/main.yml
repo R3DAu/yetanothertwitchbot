@@ -13,7 +13,7 @@ env:
   workflow_dispatch:
 
 jobs:
-  security:
+  Security:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
