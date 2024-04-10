@@ -1,4 +1,4 @@
-const Settings = require('../lib/database/models/Settings');
+const Settings = require('../lib/database/models/settings');
 const { hasCommand, getCommand } = require('../lib/commandHandler');
 
 module.exports = {

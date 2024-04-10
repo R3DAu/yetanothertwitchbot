@@ -11,6 +11,7 @@ WORKDIR /usr/src/app
 # Install app dependencies
 COPY --chown=node:node . /usr/src/app
 RUN mkdir  -p /usr/src/app/logs
+RUN mkdir  -p /usr/src/app/sessions
 RUN chown node:node /usr/src/app/logs
 
 # Copy the environment file
