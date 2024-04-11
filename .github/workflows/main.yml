@@ -57,4 +57,4 @@ jobs:
     steps:
       - name: Update container in Portainer
         run: |
-          curl -s -X POST {{ secrets.PORTAINER_URL }}
+          curl -X POST {{ secrets.PORTAINER_URL }}
