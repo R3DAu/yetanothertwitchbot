@@ -51,7 +51,7 @@ jobs:
             tags: ${{env.REGISTRY}}/r3dau/yetanothertwitchbot:latest
 
   update-portainer:
-    needs: build-and-push
+    needs: push_to_registry
     runs-on: ubuntu-latest
     steps:
       - name: Generate Portainer API token
