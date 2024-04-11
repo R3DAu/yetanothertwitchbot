@@ -64,7 +64,7 @@ jobs:
 
       - name: Update container in Portainer
         run: |
-          curl -s -X POST "{{ secrets.PORTAINER_URL }}/api/endpoints/1/docker/containers/{container_id}/update?force=true" \
+          curl -s -X POST "{{ secrets.PORTAINER_URL }}/api/endpoints/1/docker/containers/{{secrets.PORTAINER_CONTAINER_ID}}/update?force=true" \
           -H "Authorization: Bearer ${{ steps.login.outputs.token }}" \
           -H "Content-Type: application/json" \
           -d '{"image":"ghcr.io/r3dau/yetanothertwitchbot:latest"}'
