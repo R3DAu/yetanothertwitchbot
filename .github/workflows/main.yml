@@ -49,3 +49,22 @@ jobs:
             context: .
             push: true
             tags: ${{env.REGISTRY}}/r3dau/yetanothertwitchbot:latest
+
+  update-portainer:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate Portainer API token
+        id: login
+        run: |
+          TOKEN=$(curl -s -X POST "{{ secrets.PORTAINER_URL }}/api/auth" \
+          -H "Content-Type: application/json" \
+          -d '{"Username":"${{ secrets.PORTAINER_USERNAME }}", "Password":"${{ secrets.PORTAINER_PASSWORD }}"}' | jq -r '.jwt')
+          echo "::set-output name=token::$TOKEN"
+
+      - name: Update container in Portainer
+        run: |
+          curl -s -X POST "{{ secrets.PORTAINER_URL }}/api/endpoints/1/docker/containers/{container_id}/update?force=true" \
+          -H "Authorization: Bearer ${{ steps.login.outputs.token }}" \
+          -H "Content-Type: application/json" \
+          -d '{"image":"ghcr.io/r3dau/yetanothertwitchbot:latest"}'
