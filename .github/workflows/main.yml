@@ -57,7 +57,7 @@ jobs:
     steps:
       - name: Update container in Portainer
         run: |
-          curl -s -X POST "https://portainer.mtrn.au/api/endpoints/2/docker/containers/yatb/update?force=true" \
+          curl -s -X POST "https://10.7.255.10:9443/api/endpoints/2/docker/containers/yatb/update?force=true" \
           -H "X-API-Key: ${{ secrets.PORTAINER_ACCESS_TOKEN }}" \
           -H "Content-Type: application/json" \
           -d '{"image":"ghcr.io/r3dau/yetanothertwitchbot:latest"}'
