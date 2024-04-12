@@ -269,12 +269,12 @@ if(process.env.test_build === "true"){
                 let points = 0;
 
                 //let's add points to the user based on a sliding scale of how many characters they type.
-                if(message.length > 0 && message.length < 20)
-                    points = message.length; //1 point per character
-                else if(message.length >= 20 && message.length < 50)
+                if(message.length > 0 && message.length < 30)
+                    points = message.length * 3; //3 point per character
+                else if(message.length >= 30 && message.length < 50)
                     points = message.length * 2; //2 points per character
                 else if(message.length >= 50 && message.length < 255)
-                    points = message.length * 3; //3 points per character
+                    points = message.length; //1 points per character
                 else
                     points = 255; //max points
 
