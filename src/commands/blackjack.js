@@ -199,7 +199,7 @@ module.exports = {
     async execute(channel, tags, args, self, client) {
 
         //get commands
-        const command = args[0].toLowerCase();
+        const command = args[0]?.toLowerCase();
         switch(command){
             case 'hit':
             case 'stand':
