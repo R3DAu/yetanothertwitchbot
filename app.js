@@ -265,6 +265,45 @@ if(process.env.test_build === "true"){
                         username: tags.username,
                         Message: message.toString().replace(/[^\x00-\x7F]/g, "")
                     }).catch((e) => {log.error(e, {service: "Twitch Manager", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"})});
+
+                let points = 0;
+
+                //let's add points to the user based on a sliding scale of how many characters they type.
+                if(message.length > 0 && message.length < 20)
+                    points = message.length; //1 point per character
+                else if(message.length >= 20 && message.length < 50)
+                    points = message.length * 2; //2 points per character
+                else if(message.length >= 50 && message.length < 255)
+                    points = message.length * 3; //3 points per character
+                else
+                    points = 255; //max points
+
+                //check if the user exists in the gamble database.
+                const user = await Gamble.findOne({
+                    where: {
+                        channel: channel.slice(1),
+                        user: tags.username
+                    }
+                }).catch((e) => {log.error(e, {service: "Twitch Manager", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"})});
+
+                if(user){
+                    //update the user's points
+                    await Gamble.update({
+                        amount: user.amount + points
+                    }, {
+                        where: {
+                            channel: channel.slice(1),
+                            user: tags.username
+                        }
+                    }).catch((e) => {log.error(e, {service: "Twitch Manager", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"})});
+                }else{
+                    //create the user
+                    await Gamble.create({
+                        channel: channel.slice(1),
+                        user: tags.username,
+                        amount: points
+                    }).catch((e) => {log.error(e, {service: "Twitch Manager", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"})});
+                }
             }
 
             //let's check for the prefix next.
@@ -299,7 +338,7 @@ if(process.env.test_build === "true"){
 
             const disabled = JSON.parse(disabledCommands[0].options);
 
-            log.info(`Channel ${channel} has a total of ${disabled.length} disabled commands`, {service: "Twitch Manager", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"});
+            //log.info(`Channel ${channel} has a total of ${disabled.length} disabled commands`, {service: "Twitch Manager", pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"});
 
             if(!isOwner && disabled.includes(command)){
                 client.say(channel, `@${tags.username}, Command: ${command} has been disabled.`);
