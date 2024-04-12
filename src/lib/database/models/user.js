@@ -22,7 +22,12 @@ const User = sequelize.define('User', {
     login: {
         type: DataTypes.STRING,
         allowNull: false,
-    }
+    },
+    isEnabled: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+    },
 });
 
 module.exports = User;
