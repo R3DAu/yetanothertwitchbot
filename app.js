@@ -530,7 +530,7 @@ if(process.env.test_build === "true"){
             const diffHours = Math.floor(diff / 1000 / 60 / 60);
 
             if(diffHours < 1){
-                if(process.env.NODE_ENV === 'development')
+                if(process.env.NODE_ENV !== 'development')
                     return res.status(400).json({error: 'You can only enable/disable the channel once an hour.'});
             }
 
