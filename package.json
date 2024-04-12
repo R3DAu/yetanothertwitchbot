@@ -1,6 +1,6 @@
 {
   "name": "yetanothertwitchbot",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Yet Another Twitch Bot",
   "main": "app.js",
   "scripts": {
@@ -26,7 +26,8 @@
     "watch": [
       "app.js",
       ".env",
-      "src/*"
+      "src/*",
+      "*.ejs"
     ]
   },
   "devDependencies": {
@@ -34,6 +35,7 @@
   },
   "dependencies": {
     "axios": "^1.6.8",
+    "body-parser": "^1.20.2",
     "bootstrap": "^5.3.3",
     "cookie-parser": "^1.4.6",
     "cookie-session": "^2.1.0",
