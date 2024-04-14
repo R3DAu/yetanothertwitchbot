@@ -3,20 +3,7 @@ require('dotenv').config();
 const log = require('./src/lib/logger');
 const cluster = require('cluster');
 const Main = require('./src/lib/cluster/main');
-const twitchWorker = require('./src/lib/cluster/twitchWorker');
-
-const os= require("os");
-const path = require('path');
-
-const express = require('express');
-const { Sequelize, sequelize, connect } = require('./src/lib/database/db');
-const { Op } = require('sequelize');
-const Settings = require("./src/lib/database/models/settings");
-const Messages = require("./src/lib/database/models/messages");
-const Users = require("./src/lib/database/models/user");
-const Hastags = require("./src/lib/database/models/hashtags");
-const Gamble = require("./src/lib/database/models/gamble");
-
+const TwitchWorker = require('./src/lib/cluster/twitchWorker');
 
 if(process.env.test_build === "true"){
     log.debug('This is a test build', {service: "Main", pid: process.pid});
@@ -26,10 +13,14 @@ if(process.env.test_build === "true"){
 /* let's do the db connection first then we can start the app  */
 if (cluster.isMaster) {
     const main = new Main(cluster);
-    main.start();
+    main.start().then(() => {
+        log.info('Main process is running', {service: "Main", pid: process.pid});
+    });
 }else{
-    const worker = new twitchWorker(cluster);
-    worker.start();
+    const worker = new TwitchWorker(cluster);
+    worker.start().then(() => {
+        log.info(`Twitch worker ${process.pid} is running`, {service: "Twitch Worker", pid: process.pid});
+    });
 }
 
 module.exports = {
