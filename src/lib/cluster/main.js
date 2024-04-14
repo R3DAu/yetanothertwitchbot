@@ -9,7 +9,6 @@ const Messages = require("../database/models/messages");
 const Settings = require("../database/models/settings");
 const Hastags = require("../database/models/hashtags");
 const Gamble = require("../database/models/gamble");
-const cluster = require("cluster");
 
 module.exports = class Main {
     //private - we use this to get the channels from the DB
@@ -28,7 +27,7 @@ module.exports = class Main {
     }
 
     async init(){
-        return new Promise(async (resolve, reject) => {
+        return new Promise(async (resolve) => {
             //let's do this in a try block.
             try {
                 //let's deal with the database initialization.
@@ -254,14 +253,19 @@ module.exports = class Main {
     }
 
     signalHandler(){
-        this.cluster.on('exit', this.workerExit);
-        this.cluster.on('message', this.messageHandler);
+        this.cluster.on('exit',
+            (worker, code, signal) =>
+                this.workerExit(worker, code, signal).catch((e) => log.error(e, {service: "Cluster Manager", pid: process.pid, channel: "Main"})));
+
+        this.cluster.on('message',
+            (worker, message, handle) =>
+                this.messageHandler(worker, message, handle).catch((e) => log.error(e, {service: "Cluster Manager", pid: process.pid, channel: "Main"})));
 
         process.on('SIGINT', this.stop);
         process.on('SIGTERM', this.stop);
     }
 
-    async workerExit(worker, code, signal){
+    async workerExit(worker, code){
         return new Promise(async (resolve, reject) => {
             try {
                 //this means that the main thread was dead before the worker.
@@ -332,18 +336,36 @@ module.exports = class Main {
         });
     }
 
-    async messageHandler(worker, message, handle){
+    async updateChannels() {
         return new Promise(async (resolve, reject) => {
-            try{
-                if (message.type === 'updateChannels') {
-                    // Logic to update channels
-                    await this.updateChannels();
-                    // Optionally, you can also handle restarting workers here
-                    await this.restartWorkers();
+            //add try catch block
+            try {
+                // Fetch new channels from the database or other source
+                // Update twitchChannels array
+
+                //clear the current array
+                this.#twitchChannels = [];
+                this.#users = await Users.findAll({raw: true});
+
+                //update the channels
+                if (this.#users.length === 0) {
+                    log.warn(`No channels found in the DB`, {
+                        service: "Twitch Manager",
+                        pid: process.pid,
+                        channel: (process.env.channel) ? process.env.channel : "Main"
+                    });
+                    //use these channels from the env
+                    this.#twitchChannels = process.env.TMI_CHANNELS.split(',');
+                } else {
+                    //let's build the array of channels, we will only fork workers for channels that are enabled.
+                    this.#users.forEach((user) => {
+                        if (user.isEnabled)
+                            this.#twitchChannels.push(user.login);
+                    });
                 }
                 resolve(true);
-            }catch(e){
-                log.error(e, {service: "Cluster Manager", pid: process.pid, channel: (process.env.channel) ? process.env.channel : "Main"});
+            } catch (e) {
+                log.error(e, {service: "Twitch Manager", pid: process.pid, channel: (process.env.channel) ? process.env.channel : "Main"});
                 reject(e);
             }
         });
@@ -377,36 +399,18 @@ module.exports = class Main {
         });
     }
 
-    async updateChannels() {
+    async messageHandler(worker, message){
         return new Promise(async (resolve, reject) => {
-            //add try catch block
-            try {
-                // Fetch new channels from the database or other source
-                // Update twitchChannels array
-
-                //clear the current array
-                this.#twitchChannels = [];
-                this.#users = await Users.findAll({raw: true});
-
-                //update the channels
-                if (this.#users.length === 0) {
-                    log.warn(`No channels found in the DB`, {
-                        service: "Twitch Manager",
-                        pid: process.pid,
-                        channel: (process.env.channel) ? process.env.channel : "Main"
-                    });
-                    //use these channels from the env
-                    this.#twitchChannels = process.env.TMI_CHANNELS.split(',');
-                } else {
-                    //let's build the array of channels, we will only fork workers for channels that are enabled.
-                    this.#users.forEach((user) => {
-                        if (user.isEnabled)
-                            this.#twitchChannels.push(user.login);
-                    });
+            try{
+                if (message.type === 'updateChannels') {
+                    // Logic to update channels
+                    await this.updateChannels();
+                    // Optionally, you can also handle restarting workers here
+                    await this.restartWorkers();
                 }
                 resolve(true);
-            } catch (e) {
-                log.error(e, {service: "Twitch Manager", pid: process.pid, channel: (process.env.channel) ? process.env.channel : "Main"});
+            }catch(e){
+                log.error(e, {service: "Cluster Manager", pid: process.pid, channel: (process.env.channel) ? process.env.channel : "Main"});
                 reject(e);
             }
         });
