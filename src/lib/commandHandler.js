@@ -19,13 +19,13 @@ async function loadCommands(dir) {
                 const command = require(file);
                 if ('name' in command && 'execute' in command && 'isModOnly' in command && 'description' in command && 'aliases' in command && typeof command.execute === 'function') {
                     commands.push(command);
-                    log.info(`Loaded command ${command.name}`, {service: 'Command Handler', pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"})
+                    log.info(`Loaded command ${command.name}`, {service: 'Command Handler', pid: process.pid, channel: (process.env.channels)? process.env.channels : "Main"})
                 } else {
-                    log.error(`[WARNING] The command at ${file} is missing a required "name", "isModOnly", "description", "aliases" or "execute" property.`, {service: 'Command Handler', pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"});
+                    log.error(`[WARNING] The command at ${file} is missing a required "name", "isModOnly", "description", "aliases" or "execute" property.`, {service: 'Command Handler', pid: process.pid, channel: (process.env.channels)? process.env.channels : "Main"});
                     reject(`The command at ${file} is missing a required "name", "isModOnly", "description", "aliases" or "execute" property.`);
                 }
             }
-            log.info(`Loaded ${commands.length} commands.`, {service: 'Command Handler', pid: process.pid, channel: (process.env.channel)? process.env.channel : "Main"});
+            log.info(`Loaded ${commands.length} commands.`, {service: 'Command Handler', pid: process.pid, channel: (process.env.channels)? process.env.channels : "Main"});
             resolve(true);
         }catch(e){
             reject(`Unable to load commands file ${dir}. ${e}`)
