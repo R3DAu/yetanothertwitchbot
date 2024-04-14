@@ -7,7 +7,7 @@ const twitchWorker = require('./src/lib/cluster/twitchWorker');
 
 const os= require("os");
 const path = require('path');
-const tmi = require('tmi.js');
+
 const express = require('express');
 const { Sequelize, sequelize, connect } = require('./src/lib/database/db');
 const { Op } = require('sequelize');

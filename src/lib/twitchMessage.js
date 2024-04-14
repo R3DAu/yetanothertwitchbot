@@ -178,7 +178,7 @@ module.exports = class twitchMessage {
             if(hasCommand(this.command)){
                 let command = getCommand(this.command);
 
-                log.info(`User ${this.user} executed command ${this.command}`, {service: "Twitch Manager", pid: process.pid, channel: this.channel});
+                log.info(`User ${this.user} executed command${(this.command !== command.name)? " alias " : " "}${this.command} ${(this.command !== command.name)? '(' + command.name + ')' : ""}`, {service: "Twitch Manager", pid: process.pid, channel: this.channel});
 
                 //check for mod only commands.
                 if(command.isModOnly && !this.isMod()){

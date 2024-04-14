@@ -6,13 +6,10 @@ const {sequelize, connect} = require("../database/db");
 const workerStates  = require("../helpers/workerStates");
 const { loadCommands } = require("../commandHandler");
 const twitchMessage = require("../twitchMessage");
+const webWorker = require("./webWorker");
 
 //let's get the channels from the DB... we will use this to fork the workers
-const Users = require('../database/models/user');
-const Messages = require("../database/models/messages");
 const Settings = require("../database/models/settings");
-const Hastags = require("../database/models/hashtags");
-const Gamble = require("../database/models/gamble");
 
 module.exports = class TwitchWorker {
     cluster = null;
@@ -21,6 +18,7 @@ module.exports = class TwitchWorker {
     userCooldown = new Map();
     #channels = [];
     #prefixes = new Map();
+    ww = null;
 
     constructor(cluster){
         log.info(`Slave ${process.pid} is running`, {service: "Cluster", pid: process.pid, channel: (process.env.channels)? process.env.channels : "Main"});
@@ -112,6 +110,10 @@ module.exports = class TwitchWorker {
                 await this.client.connect()
                     .catch(e => { log.error(e, {service: "Twitch Manager", pid: process.pid, channel: (process.env.channels)? process.env.channels : "Main"}) });
 
+                //we are now going to launch the webservers.
+                this.ww = new webWorker(this.cluster);
+                this.ww.start();
+
                 //change the state to running
                 this.workerState = workerStates.RUNNING;
             } catch(e) {
@@ -131,27 +133,14 @@ module.exports = class TwitchWorker {
         log.info(`Worker received Signal to Quit`, {service: "Cluster", pid: process.pid, channel: (process.env.channels)? process.env.channels : "Main"});
         this.workerState = workerStates.STOPPING;
 
+        //close off the webworker
+        if(this.ww !== null)
+            await this.ww.stop();
+
         //close out of the db connection
         await sequelize.close().then(() => log.info('DB connection closed', {service: "DB", pid: process.pid, channel: (process.env.channels)? process.env.channels : "Main"})).catch((e) => log.error(e, {service: "DB", pid: process.pid, channel: (process.env.channels)? process.env.channels : "Main"}));
 
         process.exit(0);
-    }
-
-    async restart(){
-        return new Promise(async (resolve, reject) => {
-            try{
-                //change the state to restarting
-                this.workerState = workerStates.RESTARTING;
-
-                //change the state to running
-                this.workerState = workerStates.RUNNING;
-                resolve(true);
-            }catch(e){
-                log.error(e, {service: "Cluster Manager", pid: process.pid, channel: (process.env.channel) ? process.env.channel : "Main"});
-                await this.stop();
-                reject(e);
-            }
-        });
     }
 }
 
