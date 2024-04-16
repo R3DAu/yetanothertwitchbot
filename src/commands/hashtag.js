@@ -12,7 +12,7 @@ module.exports = {
             where: {
                 [Op.or]: [
                     { type: 'GLOBAL' },
-                    { channel: channel.slice(1) } //get rid of the # symbol
+                    { channel: channel } //get rid of the # symbol
                 ]
             }
         });
@@ -53,7 +53,7 @@ module.exports = {
 
                 await Hashtags.create({
                     hashtag,
-                    channel: channel.slice(1),
+                    channel: channel,
                     type: 'CHANNEL'
                 });
 
@@ -74,7 +74,7 @@ module.exports = {
                 const remove = await Hashtags.destroy({
                     where: {
                         hashtag: removeHashtag,
-                        channel: channel.slice(1)
+                        channel: channel
                     }
                 });
 

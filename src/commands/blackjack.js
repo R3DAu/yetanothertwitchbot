@@ -145,7 +145,7 @@ async function concludeGame(client, channel, username, amount) {
     // Check the user's balance
     const balance = await Gamble.findOrCreate({
         where: {
-            channel: channel.slice(1),
+            channel: channel,
             user: username
         },
         defaults: {
@@ -160,7 +160,7 @@ async function concludeGame(client, channel, username, amount) {
             amount: balance[0].amount + (amount * 2)
         }, {
             where: {
-                channel: channel.slice(1),
+                channel: channel,
                 user: username
             }
         });
@@ -179,7 +179,7 @@ async function concludeGame(client, channel, username, amount) {
             amount: balance[0].amount + amount
         }, {
             where: {
-                channel: channel.slice(1),
+                channel: channel,
                 user: username
             }
         });
@@ -221,7 +221,7 @@ module.exports = {
                 // Check the user's balance
                 const balance = await Gamble.findOrCreate({
                     where: {
-                        channel: channel.slice(1),
+                        channel: channel,
                         user: tags.username
                     },
                     defaults: {
@@ -240,7 +240,7 @@ module.exports = {
                     amount: balance[0].amount - amount
                 }, {
                     where: {
-                        channel: channel.slice(1),
+                        channel: channel,
                         user: tags.username
                     }
                 });

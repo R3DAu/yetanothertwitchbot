@@ -47,7 +47,7 @@ module.exports = {
         //let's get all the messages of the channel within a 5 minute window from the database.
         const messages = await Messages.findAll({
             where: {
-                channel: channel.slice(1),
+                channel: channel,
                 createdAt: {
                     [Op.gte]: new Date(new Date() - 5 * 60 * 1000)
                 }
@@ -60,7 +60,7 @@ module.exports = {
 
         //we now need to create a prompt for the OpenAI API.
         const formattedMessages  = messages.map(m => `${m.username}: ${m.Message}`).join("\n");
-        const streamInfo = await getStreamInfo(channel.slice(1));
+        const streamInfo = await getStreamInfo(channel);
 
         //we can't respond if the streamer is not live.
         if(!streamInfo){

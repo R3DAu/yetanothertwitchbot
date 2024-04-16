@@ -8,7 +8,7 @@ module.exports = {
     isModOnly: false,
     async execute(channel, tags, args, self, client) {
         //get the stream details
-        const streamInfo = await getStreamInfo(channel.slice(1));
+        const streamInfo = await getStreamInfo(channel);
         if(!streamInfo){
             client.say(channel, `@${tags.username}, The streamer is not live.`);
             return;
@@ -21,6 +21,6 @@ module.exports = {
             return;
         }
 
-        client.say(channel, `@${tags.username}, ${channel.slice(1)} is playing ${gameInfo.name}. ${gameInfo.igdb.summary}`);
+        client.say(channel, `@${tags.username}, ${channel} is playing ${gameInfo.name}. ${gameInfo.igdb.summary}`);
     }
 }
