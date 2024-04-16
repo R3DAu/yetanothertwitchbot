@@ -13,7 +13,7 @@ module.exports = {
         const dateInput = args[2];
         const date = dateInput ? new Date(Date.parse(dateInput)) : new Date();
         const dateString = date.toISOString().substring(0, 10);
-        const chan = args[3] || channel.slice(1);
+        const chan = args[3] || channel;
         const page = parseInt(args[4]) || 1;
 
         const offset = (page - 1) * limit;

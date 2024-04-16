@@ -19,7 +19,7 @@ module.exports = {
         if(setting == "list"){
             const settings = await Settings.findAll({
                 where:{
-                  channeluserid: channel.slice(1)
+                  channeluserid: channel
                 },
                 raw: true
             });
@@ -60,7 +60,7 @@ module.exports = {
                 //get the disabled commands
                 const disabledCommands = await Settings.findOne({
                     where:{
-                        channeluserid: channel.slice(1),
+                        channeluserid: channel,
                         key: "disabledCommands"
                     },
                     raw: true
@@ -81,13 +81,13 @@ module.exports = {
                                 options: JSON.stringify(disabled)
                             }, {
                                 where: {
-                                    channeluserid: channel.slice(1),
+                                    channeluserid: channel,
                                     key: "disabledCommands"
                                 }
                             });
                         }else{
                             await Settings.create({
-                                channeluserid: channel.slice(1),
+                                channeluserid: channel,
                                 key: "disabledCommands",
                                 options: JSON.stringify([value]),
                                 description: "The disabled commands for the bot.",
@@ -111,7 +111,7 @@ module.exports = {
                                     options: JSON.stringify(disabled)
                                 }, {
                                     where: {
-                                        channeluserid: channel.slice(1),
+                                        channeluserid: channel,
                                         key: "disabledCommands"
                                     }
                                 });
@@ -132,7 +132,7 @@ module.exports = {
                 //get the prefix
                 const prefix = await Settings.findOne({
                     where:{
-                        channeluserid: channel.slice(1),
+                        channeluserid: channel,
                         key: "prefix"
                     },
                     raw: true
@@ -146,13 +146,13 @@ module.exports = {
                                 value: value
                             }, {
                                 where: {
-                                    channeluserid: channel.slice(1),
+                                    channeluserid: channel,
                                     key: "prefix"
                                 }
                             });
                         }else{
                             await Settings.create({
-                                channeluserid: channel.slice(1),
+                                channeluserid: channel,
                                 key: "prefix",
                                 value: value,
                                 description: "The prefix for the bot."
@@ -171,7 +171,7 @@ module.exports = {
                         //remove the prefix
                         await Settings.destroy({
                             where: {
-                                channeluserid: channel.slice(1),
+                                channeluserid: channel,
                                 key: "prefix"
                             }
                         });

@@ -9,7 +9,7 @@ module.exports = {
         //let's get the user's balance
         const balance = await Gamble.findOrCreate({
             where: {
-                channel: channel.slice(1),
+                channel: channel,
                 user: tags.username
             },
             defaults: {
