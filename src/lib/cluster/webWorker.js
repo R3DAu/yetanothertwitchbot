@@ -1,4 +1,5 @@
 require('dotenv').config();
+const { generateRegistrationOptions, verifyRegistrationResponse, generateAuthenticationOptions, verifyAuthenticationResponse } = require('@simplewebauthn/server');
 const log = require("../logger");
 const {sequelize, connect} = require("../database/db");
 const workerStates  = require("../helpers/workerStates");
@@ -15,6 +16,7 @@ const Messages = require("../database/models/messages");
 const Settings = require("../database/models/settings");
 const Gamble = require("../database/models/gamble");
 
+
 module.exports = class WebWorker {
     cluster = null;
     workerState = workerStates.STARTING;
@@ -22,12 +24,20 @@ module.exports = class WebWorker {
     app = null;
     port = process.env.APP_PORT || 3000;
     server = null;
+    rpID = null;
+    origin = null;
+    inMemoryUserDeviceDB = null;
 
     constructor(cluster){
         log.info(`Slave ${process.pid} is running`, {service: "Cluster", pid: process.pid, channel: (process.env.channels)? process.env.channels : "Main"});
         this.cluster = cluster;
         //for each channel, we will have a webserver
         this.app = express();
+
+        this.rpID = 'localhost'; // Replace with your domain
+        this.origin = 'http://localhost:4000'; // Replace with your origin
+
+        this.inMemoryUserDeviceDB = new Map();
     }
 
     async init(){
@@ -53,6 +63,71 @@ module.exports = class WebWorker {
                 /* exit the process */
                 process.exit(1);
             }
+        });
+    }
+
+    // Generate registration options
+    getRegistrationOptions(userID) {
+        const options = generateRegistrationOptions({
+            rpID: this.rpID,
+            userID: userID,
+            userName: userID,
+            attestationType: 'none', // For simpler deployment, though 'direct' can be used for higher security assurance
+            authenticatorSelection: {
+                userVerification: 'preferred',
+                authenticatorAttachment: 'cross-platform', // 'platform' for device-specific, 'cross-platform' for flexibility
+            },
+        });
+        return options;
+    }
+
+    // Verify registration response
+    async verifyRegistration(userID, registrationResponse) {
+        const expectedChallenge = inMemoryUserDeviceDB.get(userID).challenge;
+        const verification = await verifyRegistrationResponse({
+            credential: registrationResponse,
+            expectedChallenge,
+            expectedOrigin: origin,
+            expectedRPID: this.rpID,
+        });
+        return verification;
+    }
+
+    // Generate authentication options
+    getAuthenticationOptions(userID) {
+        const options = generateAuthenticationOptions({
+            rpID: this.rpID,
+            allowCredentials: [{
+                id: this.inMemoryUserDeviceDB.get(userID).credentialID,
+                type: 'public-key',
+            }],
+        });
+        return options;
+    }
+
+    // Verify authentication response
+    async verifyAuthentication(userID, authResponse) {
+        const expectedChallenge = this.inMemoryUserDeviceDB.get(userID).challenge;
+        const verification = await verifyAuthenticationResponse({
+            credential: authResponse,
+            expectedChallenge,
+            expectedOrigin: origin,
+            expectedRPID: this.rpID,
+            authenticator: this.inMemoryUserDeviceDB.get(userID).authenticator,
+        });
+        return verification;
+    }
+
+    // Enhanced authentication options for Passkeys
+    getPasskeyAuthenticationOptions(userID) {
+        const authenticator = getAuthenticatorData(userID); // Function to retrieve saved authenticator data from your database
+        return generateAuthenticationOptions({
+            rpID: 'example.com',
+            allowCredentials: [{
+                id: authenticator.credentialID,
+                type: 'public-key',
+            }],
+            userVerification: 'preferred',
         });
     }
 
@@ -244,6 +319,26 @@ module.exports = class WebWorker {
                     } else {
                         res.render('login.ejs');
                     }
+                });
+
+                this.app.get('/webauthn/register/options',async (req, res) => {
+                    const options = await this.getRegistrationOptions(req.user.id);
+                    res.json(options);
+                });
+
+                this.app.post('/webauthn/register/verify', async (req, res) => {
+                    const verification = await this.verifyRegistration(req.user.id, req.body);
+                    res.json({ verified: verification });
+                });
+
+                this.app.post('/webauthn/login/options', (req, res) => {
+                    const options = this.getAuthenticationOptions(req.user.id);
+                    res.json(options);
+                });
+
+                this.app.post('/webauthn/login/verify', async (req, res) => {
+                    const verification = await this.verifyAuthentication(req.user.id, req.body);
+                    res.json({ verified: verification });
                 });
 
                 this.server = this.app.listen(this.port, () => {
