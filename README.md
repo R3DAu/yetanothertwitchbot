@@ -4,7 +4,6 @@
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/w/R3DAu/yetanothertwitchbot)
 ![GitHub last commit](https://img.shields.io/github/last-commit/R3DAu/yetanothertwitchbot)
 ![GitHub package.json version](https://img.shields.io/github/package-json/v/R3DAu/yetanothertwitchbot)
-![GitHub issues](https://img.shields.io/github/issues/R3DAu/yetanothertwitchbot)
 [![wakatime](https://wakatime.com/badge/user/5c369e66-4117-4964-ac95-c272b21de546/project/018eab80-98d1-47c0-9a3f-f8e2c219ebda.svg)](https://wakatime.com/badge/user/5c369e66-4117-4964-ac95-c272b21de546/project/018eab80-98d1-47c0-9a3f-f8e2c219ebda)
 
 YATB is a simple Twitch bot that can be used to interact with your viewers, it allows you to configure custom commands, scripts and even has an inbuilt web server to let your streamers manage their channels. 
