@@ -111,7 +111,7 @@ module.exports = class twitchMessage {
     }
 
     async handleAccounting(){
-        if(this.isSelf || this.isIgnored) return;
+        if(this.isSelf() || this.isIgnored()) return;
 
         if(!this.isCommand()){
             let points = 0;
