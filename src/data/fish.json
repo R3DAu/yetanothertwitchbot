@@ -1,0 +1,476 @@
+[
+  {
+    "name": "Blue Tang",
+    "weight": "0.5 kg",
+    "rarity": "Common",
+    "value": "$10"
+  },
+  {
+    "name": "Clownfish",
+    "weight": "0.3 kg",
+    "rarity": "Common",
+    "value": "$8"
+  },
+  {
+    "name": "Yellowtail Snapper",
+    "weight": "1 kg",
+    "rarity": "Uncommon",
+    "value": "$20"
+  },
+  {
+    "name": "Mahi Mahi",
+    "weight": "5 kg",
+    "rarity": "Rare",
+    "value": "$50"
+  },
+  {
+    "name": "Tuna",
+    "weight": "10 kg",
+    "rarity": "Very Rare",
+    "value": "$100"
+  },
+  {
+    "name": "Salmon",
+    "weight": "3 kg",
+    "rarity": "Uncommon",
+    "value": "$30"
+  },
+  {
+    "name": "Swordfish",
+    "weight": "8 kg",
+    "rarity": "Rare",
+    "value": "$80"
+  },
+  {
+    "name": "Mackerel",
+    "weight": "0.7 kg",
+    "rarity": "Common",
+    "value": "$15"
+  },
+  {
+    "name": "Cod",
+    "weight": "2 kg",
+    "rarity": "Uncommon",
+    "value": "$25"
+  },
+  {
+    "name": "Grouper",
+    "weight": "4 kg",
+    "rarity": "Rare",
+    "value": "$40"
+  },
+  {
+    "name": "Red Snapper",
+    "weight": "1.5 kg",
+    "rarity": "Uncommon",
+    "value": "$18"
+  },
+  {
+    "name": "Barracuda",
+    "weight": "6 kg",
+    "rarity": "Rare",
+    "value": "$60"
+  },
+  {
+    "name": "Angelfish",
+    "weight": "0.4 kg",
+    "rarity": "Common",
+    "value": "$12"
+  },
+  {
+    "name": "Catfish",
+    "weight": "1.2 kg",
+    "rarity": "Uncommon",
+    "value": "$22"
+  },
+  {
+    "name": "Perch",
+    "weight": "0.6 kg",
+    "rarity": "Common",
+    "value": "$11"
+  },
+  {
+    "name": "Rainbow Trout",
+    "weight": "0.8 kg",
+    "rarity": "Common",
+    "value": "$14"
+  },
+  {
+    "name": "Haddock",
+    "weight": "1.8 kg",
+    "rarity": "Uncommon",
+    "value": "$28"
+  },
+  {
+    "name": "Yellowfin Tuna",
+    "weight": "7 kg",
+    "rarity": "Rare",
+    "value": "$70"
+  },
+  {
+    "name": "Blue Marlin",
+    "weight": "12 kg",
+    "rarity": "Very Rare",
+    "value": "$120"
+  },
+  {
+    "name": "Trout",
+    "weight": "1.3 kg",
+    "rarity": "Uncommon",
+    "value": "$24"
+  },
+  {
+    "name": "Snook",
+    "weight": "3.5 kg",
+    "rarity": "Rare",
+    "value": "$35"
+  },
+  {
+    "name": "Flounder",
+    "weight": "0.9 kg",
+    "rarity": "Common",
+    "value": "$16"
+  },
+  {
+    "name": "Halibut",
+    "weight": "4.5 kg",
+    "rarity": "Rare",
+    "value": "$45"
+  },
+  {
+    "name": "Wahoo",
+    "weight": "5.5 kg",
+    "rarity": "Rare",
+    "value": "$55"
+  },
+  {
+    "name": "Bass",
+    "weight": "2.5 kg",
+    "rarity": "Uncommon",
+    "value": "$32"
+  },
+  {
+    "name": "Carp",
+    "weight": "2.2 kg",
+    "rarity": "Uncommon",
+    "value": "$26"
+  },
+  {
+    "name": "Pike",
+    "weight": "2.8 kg",
+    "rarity": "Uncommon",
+    "value": "$29"
+  },
+  {
+    "name": "Sturgeon",
+    "weight": "15 kg",
+    "rarity": "Very Rare",
+    "value": "$150"
+  },
+  {
+    "name": "Sardine",
+    "weight": "0.2 kg",
+    "rarity": "Common",
+    "value": "$6"
+  },
+  {
+    "name": "Anchovy",
+    "weight": "0.1 kg",
+    "rarity": "Common",
+    "value": "$5"
+  },
+  {
+    "name": "Eel",
+    "weight": "0.6 kg",
+    "rarity": "Common",
+    "value": "$13"
+  },
+  {
+    "name": "Shark",
+    "weight": "20 kg",
+    "rarity": "Legendary",
+    "value": "$200"
+  },
+  {
+    "name": "Stingray",
+    "weight": "5.5 kg",
+    "rarity": "Rare",
+    "value": "$55"
+  },
+  {
+    "name": "Rockfish",
+    "weight": "0.8 kg",
+    "rarity": "Common",
+    "value": "$14"
+  },
+  {
+    "name": "Lionfish",
+    "weight": "0.4 kg",
+    "rarity": "Common",
+    "value": "$12"
+  },
+  {
+    "name": "Mullet",
+    "weight": "0.7 kg",
+    "rarity": "Common",
+    "value": "$15"
+  },
+  {
+    "name": "Herring",
+    "weight": "0.3 kg",
+    "rarity": "Common",
+    "value": "$8"
+  },
+  {
+    "name": "Gurnard",
+    "weight": "0.9 kg",
+    "rarity": "Common",
+    "value": "$16"
+  },
+  {
+    "name": "Flathead Catfish",
+    "weight": "2.3 kg",
+    "rarity": "Uncommon",
+    "value": "$27"
+  },
+  {
+    "name": "Blackfish",
+    "weight": "1.6 kg",
+    "rarity": "Uncommon",
+    "value": "$21"
+  },
+  {
+    "name": "Monkfish",
+    "weight": "3.2 kg",
+    "rarity": "Rare",
+    "value": "$33"
+  },
+  {
+    "name": "Pollock",
+    "weight": "1.7 kg",
+    "rarity": "Uncommon",
+    "value": "$23"
+  },
+  {
+    "name": "Tilefish",
+    "weight": "6.5 kg",
+    "rarity": "Rare",
+    "value": "$65"
+  },
+  {
+    "name": "Goby",
+    "weight": "0.2 kg",
+    "rarity": "Common",
+    "value": "$6"
+  },
+  {
+    "name": "Porgy",
+    "weight": "0.6 kg",
+    "rarity": "Common",
+    "value": "$13"
+  },
+  {
+    "name": "Bluegill",
+    "weight": "0.4 kg",
+    "rarity": "Common",
+    "value": "$12"
+  },
+  {
+    "name": "Tilapia",
+    "weight": "0.5 kg",
+    "rarity": "Common",
+    "value": "$10"
+  },
+  {
+    "name": "Cobia",
+    "weight": "7.5 kg",
+    "rarity": "Rare",
+    "value": "$75"
+  },
+  {
+    "name": "Dorado",
+    "weight": "4.7 kg",
+    "rarity": "Rare",
+    "value": "$47"
+  },
+  {
+    "name": "Triggerfish",
+    "weight": "1.1 kg",
+    "rarity": "Uncommon",
+    "value": "$19"
+  },
+  {
+    "name": "Opah",
+    "weight": "9 kg",
+    "rarity": "Very Rare",
+    "value": "$90"
+  },
+  {
+    "name": "Bonito",
+    "weight": "3.5 kg",
+    "rarity": "Rare",
+    "value": "$35"
+  },
+  {
+    "name": "Wrasse",
+    "weight": "0.8 kg",
+    "rarity": "Common",
+    "value": "$14"
+  },
+  {
+    "name": "Bluefish",
+    "weight": "1.9 kg",
+    "rarity": "Uncommon",
+    "value": "$31"
+  },
+  {
+    "name": "Croaker",
+    "weight": "0.7 kg",
+    "rarity": "Common",
+    "value": "$15"
+  },
+  {
+    "name": "Yellow Perch",
+    "weight": "0.5 kg",
+    "rarity": "Common",
+    "value": "$10"
+  },
+  {
+    "name": "Whitefish",
+    "weight": "1.4 kg",
+    "rarity": "Uncommon",
+    "value": "$26"
+  },
+  {
+    "name": "Black Sea Bass",
+    "weight": "1.8 kg",
+    "rarity": "Uncommon",
+    "value": "$28"
+  },
+  {
+    "name": "Redfish",
+    "weight": "2.1 kg",
+    "rarity": "Uncommon",
+    "value": "$24"
+  },
+  {
+    "name": "Kingfish",
+    "weight": "5 kg",
+    "rarity": "Rare",
+    "value": "$50"
+  },
+  {
+    "name": "Atlantic Croaker",
+    "weight": "0.9 kg",
+    "rarity": "Common",
+    "value": "$16"
+  },
+  {
+    "name": "Sheepshead",
+    "weight": "2.5 kg",
+    "rarity": "Uncommon",
+    "value": "$32"
+  },
+  {
+    "name": "Albacore",
+    "weight": "6.2 kg",
+    "rarity": "Rare",
+    "value": "$62"
+  },
+  {
+    "name": "Red Grouper",
+    "weight": "3.8 kg",
+    "rarity": "Rare",
+    "value": "$38"
+  },
+  {
+    "name": "Red Drum",
+    "weight": "4.3 kg",
+    "rarity": "Rare",
+    "value": "$43"
+  },
+  {
+    "name": "Black Drum",
+    "weight": "3.7 kg",
+    "rarity": "Rare",
+    "value": "$37"
+  },
+  {
+    "name": "Yellowtail Amberjack",
+    "weight": "8 kg",
+    "rarity": "Rare",
+    "value": "$80"
+  },
+  {
+    "name": "Blackfin Tuna",
+    "weight": "6.8 kg",
+    "rarity": "Rare",
+    "value": "$68"
+  },
+  {
+    "name": "Lane Snapper",
+    "weight": "1.3 kg",
+    "rarity": "Uncommon",
+    "value": "$24"
+  },
+  {
+    "name": "Sailfish",
+    "weight": "15 kg",
+    "rarity": "Very Rare",
+    "value": "$150"
+  },
+  {
+    "name": "Bonefish",
+    "weight": "2 kg",
+    "rarity": "Uncommon",
+    "value": "$25"
+  },
+  {
+    "name": "White Marlin",
+    "weight": "13 kg",
+    "rarity": "Very Rare",
+    "value": "$130"
+  },
+  {
+    "name": "Atlantic Salmon",
+    "weight": "3.5 kg",
+    "rarity": "Uncommon",
+    "value": "$35"
+  },
+  {
+    "name": "King Mackerel",
+    "weight": "5.5 kg",
+    "rarity": "Rare",
+    "value": "$55"
+  },
+  {
+    "name": "Spanish Mackerel",
+    "weight": "4 kg",
+    "rarity": "Rare",
+    "value": "$40"
+  },
+  {
+    "name": "Northern Pike",
+    "weight": "3.3 kg",
+    "rarity": "Rare",
+    "value": "$33"
+  },
+  {
+    "name": "Red Emperor",
+    "weight": "7 kg",
+    "rarity": "Rare",
+    "value": "$70"
+  },
+  {
+    "name": "Blue Catfish",
+    "weight": "10 kg",
+    "rarity": "Very Rare",
+    "value": "$100"
+  },
+  {
+    "name": "Yellowfin Grouper",
+    "weight": "6 kg",
+    "rarity": "Rare",
+    "value": "$60"
+  }
+]

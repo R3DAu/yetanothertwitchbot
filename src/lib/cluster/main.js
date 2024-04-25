@@ -9,6 +9,7 @@ const Messages = require("../database/models/messages");
 const Settings = require("../database/models/settings");
 const Hastags = require("../database/models/hashtags");
 const Gamble = require("../database/models/gamble");
+const FishCaught = require("../database/models/fishCaught");
 
 module.exports = class Main {
     //private - we use this to get the channels from the DB
@@ -54,6 +55,20 @@ module.exports = class Main {
 
                     await Settings.sync({alter: false}).then(() => {
                         log.info('Settings Table Synchronised Successfully', {
+                            service: "DB",
+                            pid: process.pid,
+                            channel: "Main"
+                        });
+                    }).catch((e) => {
+                        log.error(e, {
+                            service: "DB",
+                            pid: process.pid,
+                            channel: "Main"
+                        });
+                    });
+
+                    await FishCaught.sync({alter: false}).then(() => {
+                        log.info('FishCaught Table Synchronised Successfully', {
                             service: "DB",
                             pid: process.pid,
                             channel: "Main"
