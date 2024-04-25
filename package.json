@@ -1,6 +1,6 @@
 {
   "name": "yetanothertwitchbot",
-  "version": "1.5.4",
+  "version": "1.5.5",
   "description": "Yet Another Twitch Bot",
   "main": "app.js",
   "scripts": {
