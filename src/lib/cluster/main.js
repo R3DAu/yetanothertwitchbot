@@ -389,7 +389,7 @@ module.exports = class Main {
     async forkWorkers(){
         return new Promise(async (resolve, reject) => {
             try {
-                const numWorkers = 5; // Maximum number of workers
+                const numWorkers = 25; // Maximum number of workers
                 const channelsPerWorker = Math.ceil(this.#twitchChannels.length / numWorkers);
                 this.workers = [];
                 this.workerToChannelIndexMap = {}; // Reset the mapping
