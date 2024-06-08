@@ -134,8 +134,8 @@ module.exports = class TwitchWorker {
         this.workerState = workerStates.STOPPING;
 
         //close off the webworker
-        if(this.ww !== null)
-            await this.ww.stop();
+        /*if(this.ww !== null)
+            await this.ww.stop();*/
 
         //close out of the db connection
         await sequelize.close().then(() => log.info('DB connection closed', {service: "DB", pid: process.pid, channel: (process.env.channels)? process.env.channels : "Main"})).catch((e) => log.error(e, {service: "DB", pid: process.pid, channel: (process.env.channels)? process.env.channels : "Main"}));
