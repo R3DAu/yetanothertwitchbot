@@ -79,7 +79,8 @@ module.exports = class TwitchWorker {
                     },
                     connection: {
                         secure: true,
-                        reconnect: true
+                        reconnect: true,
+                        reconnectInterval: 3000,
                     },
                     channels: [this.#channels]
                 });
