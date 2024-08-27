@@ -51,10 +51,10 @@ jobs:
             push: true
             tags: ${{env.REGISTRY}}/r3dau/yetanothertwitchbot:latest
 
-  update-portainer:
-    needs: push_to_registry
-    runs-on: [ self-hosted ]
-    steps:
-      - name: Update container in Portainer
-        run: |
-          curl -s -k -X POST ${{ secrets.PORTAINER_URL }}
+  #update-portainer:
+  #  needs: push_to_registry
+  #  #runs-on: [ self-hosted ]
+  #  steps:
+  #    - name: Update container in Portainer
+  #      run: |
+  #        curl -s -k -X POST ${{ secrets.PORTAINER_URL }}
