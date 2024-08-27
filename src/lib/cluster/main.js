@@ -248,10 +248,10 @@ module.exports = class Main {
         });
     }
 
-    async workerRestart(worker){
+    async workerRestart(worker, workerId){
         return new Promise(async (resolve, reject) => {
             try {
-                const channels = this.workerToChannelIndexMap[worker.id];
+                const channels = this.workerToChannelIndexMap[workerId];
                 log.warn(`Restarting worker for channels: ${channels.join(", ")}`, {service: "Cluster", pid: process.pid, channel: "Main"});
                 // Shutdown old worker
                 await this.workerKill(worker);
@@ -285,10 +285,16 @@ module.exports = class Main {
             try {
                 //this means that the main thread was dead before the worker.
                 if(!this.workerState) return resolve(true);
+                log.debug(`Worker ${worker.id} exited with code ${code}`, {service: "Cluster", pid: process.pid, channel: (process.env.channels) ? process.env.channels : "Main"});
+
+                //let's get some statics up here before they disappear.
+                const workerId = worker.id;
+                const channelIndex = this.workerToChannelIndexMap[workerId]; // Retrieve channel index
+                const channelId = this.#twitchChannels[channelIndex]; // Retrieve channel ID
 
                 //let's check if the main thread is stopping.
                 if (this.workerState === workerStates.STOPPING){
-                    log.info(`Worker for channel index ${channelIndex} (${this.#twitchChannels[channelIndex]}) has been shutdown`, {
+                    log.info(`Worker for channel index ${channelIndex} (${channelId}) has been shutdown`, {
                         service: "Cluster",
                         pid: process.pid,
                         channel: (process.env.channels) ? process.env.channels : "Main"
@@ -297,21 +303,18 @@ module.exports = class Main {
                     return resolve(true);
                 }
 
-                //get the channel index
-                const channelIndex = this.workerToChannelIndexMap[worker.id]; // Retrieve channel index
-
                 // Let's check the code being sent.
                 switch (code) {
                     case 450001: //forced restart.
                         //we don't need to increase the counter.
-                        log.info(`Worker for channel index ${channelIndex} (${this.#twitchChannels[channelIndex]}) has exited with code ${code} however, it was necessary for a reboot due to change.`, {
+                        log.info(`Worker for channel index ${channelIndex} (${channelId}) has exited with code ${code} however, it was necessary for a reboot due to change.`, {
                             service: "Cluster",
                             pid: process.pid,
                             channel: (process.env.channel) ? process.env.channel : "Main"
                         });
                         break;
                     case 450002: //shutdown
-                        log.info(`Worker for channel index ${channelIndex} (${this.#twitchChannels[channelIndex]}) has been shutdown`, {
+                        log.info(`Worker for channel index ${channelIndex} (${channelId}) has been shutdown`, {
                             service: "Cluster",
                             pid: process.pid,
                             channel: (process.env.channel) ? process.env.channel : "Main"
@@ -319,8 +322,9 @@ module.exports = class Main {
                         await this.workerKill(worker);
                         return resolve(true);
                     default: //unknown restart.
-                        this.restartCounts[channelIndex] += 1;
-                        log.info(`Worker for channel index ${channelIndex} (${this.#twitchChannels[channelIndex]}) has been restarted ${this.restartCounts[channelIndex]} times`, {
+                        this.restartCounts[workerId] += 1;
+
+                        log.info(`Worker for channel index ${channelIndex} (${channelId}) has been restarted ${this.restartCounts[workerId]} times`, {
                             service: "Cluster",
                             pid: process.pid,
                             channel: (process.env.channel) ? process.env.channel : "Main"
@@ -328,7 +332,7 @@ module.exports = class Main {
                 }
 
                 if (this.restartCounts[channelIndex] > 3) {
-                    log.error(`Worker for channel index ${channelIndex} (${this.#twitchChannels[channelIndex]}) has hit the max restart count and will not be restarted`, {
+                    log.error(`Worker for channel index ${channelIndex} (${channelId}) has hit the max restart count and will not be restarted`, {
                         service: "Cluster",
                         pid: process.pid,
                         channel: (process.env.channel) ? process.env.channel : "Main"
@@ -338,7 +342,7 @@ module.exports = class Main {
                 }
 
                 //restart the worker
-                await this.workerRestart(channelIndex);
+                await this.workerRestart(channelIndex, workerId);
                 resolve(true);
             } catch (e) {
                 log.error(e, {
@@ -389,9 +393,13 @@ module.exports = class Main {
     async forkWorkers(){
         return new Promise(async (resolve, reject) => {
             try {
+                //gran the number of workers from the env.
                 const numWorkers = process.env.APP_FORK_LIMIT || 5; // Maximum number of workers
+                // Distribute channels evenly across workers
                 const channelsPerWorker = Math.ceil(this.#twitchChannels.length / numWorkers);
+                // Reset the workers array
                 this.workers = [];
+                // Reset the restart counts
                 this.workerToChannelIndexMap = {}; // Reset the mapping
 
                 for (let i = 0; i < numWorkers; i++) {
