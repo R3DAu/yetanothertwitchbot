@@ -27,7 +27,7 @@ jobs:
   push_to_registry:
     needs: Security
     name: Push Docker image to GitHub Packages
-    runs-on: [ self-hosted ]
+    runs-on: [self-hosted, linux]
 
     permissions:
       contents: read
