@@ -70,8 +70,7 @@ module.exports = class TwitchWorker {
 
                 this.client = await new tmi.Client({
                     options: {
-                        debug: process.env.TMI_DEBUG === 'true',
-                        messageLogLevel: process.env.TMI_DEBUG === 'true' ? 'info' : 'error'
+                        debug: process.env.TMI_DEBUG === 'true'
                     },
                     identity: {
                         username: process.env.TMI_USER,
@@ -80,7 +79,7 @@ module.exports = class TwitchWorker {
                     connection: {
                         secure: true,
                         reconnect: true,
-                        reconnectInterval: 3000,
+                        reconnectInterval: 1000,
                     },
                     channels: [this.#channels]
                 });
@@ -97,8 +96,16 @@ module.exports = class TwitchWorker {
                     log.warning(`Disconnected: ${reason}`, {service: "Twitch Manager", pid: process.pid, channel: (process.env.channels)? process.env.channels : "Main"});
                 });
 
+                this.client.on('reconnect', () => {
+                    log.warning(`Reconnecting`, {service: "Twitch Manager", pid: process.pid, channel: (process.env.channels)? process.env.channels : "Main"});
+                });
+
                 this.client.on('logon', () => {
                     log.info(`Logged in, Ready to rock`, {service: "Twitch Manager", pid: process.pid, channel: (process.env.channels)? process.env.channels : "Main"});
+                });
+
+                this.client.on('error', (err) => {
+                    log.error(err, {service: "Twitch Manager", pid: process.pid, channel: (process.env.channels)? process.env.channels : "Main"});
                 });
 
                 this.client.on('message', async (channel, userstate, message, self) => {
